@@ -40,40 +40,40 @@ export default async function HomePage() {
           priority
         />
         <div className="mt-8 md:mt-0 ml-0 md:ml-6 space-y-2 text-neutral-500 dark:text-neutral-400">
-          <a
+          {/* <a
             rel="noopener noreferrer"
             target="_blank"
-            href="https://twitter.com/leeerob"
+            href="https://twitter.com/pvbhanuteja"
             className="flex items-center gap-2"
           >
             <TwitterIcon />
             {`${tweetCount.toLocaleString()} tweets all time`}
-          </a>
-          <a
+          </a> */}
+          {/* <a
             rel="noopener noreferrer"
             target="_blank"
-            href="https://github.com/leerob"
+            href="https://github.com/pvbhanuteja"
             className="flex items-center gap-2"
           >
             <GitHubIcon />
             {`${starCount.toLocaleString()} stars on this repo`}
-          </a>
-          <Link href="/blog" className="flex items-center">
+          </a> */}
+          {/* <Link href="/blog" className="flex items-center">
             <ViewsIcon />
             {`${views.toLocaleString()} blog views all time`}
-          </Link>
+          </Link> */}
         </div>
       </div>
       <p className="my-5 max-w-[600px] text-neutral-800 dark:text-neutral-200">
         {bio()}
       </p>
       <ul className="flex flex-col md:flex-row mt-8 space-x-0 md:space-x-4 space-y-2 md:space-y-0 font-sm text-neutral-500 dark:text-neutral-400">
-        <li>
+        {/* <li>
           <a
             className="flex items-center hover:text-neutral-700 dark:hover:text-neutral-200 transition-all"
             rel="noopener noreferrer"
             target="_blank"
-            href="https://twitter.com/leeerob"
+            href="https://twitter.com/pvbhanuteja"
           >
             <ArrowIcon />
             <p className="h-7">follow me on twitter</p>
@@ -89,7 +89,7 @@ export default async function HomePage() {
             <ArrowIcon />
             <p className="h-7">get email updates</p>
           </a>
-        </li>
+        </li> */}
       </ul>
     </section>
   );

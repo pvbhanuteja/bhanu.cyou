@@ -14,7 +14,7 @@ export default function AboutPage() {
     ];
 
     return (
-        <section className="">
+        <section>
             <h1 className="font-bold text-3xl mb-8 font-serif">About Me</h1>
 
             <div className="space-y-4">

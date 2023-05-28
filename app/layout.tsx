@@ -14,18 +14,18 @@ const kaisei = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Lee Robinson',
-    template: '%s | Lee Robinson',
+    default: 'Bhanu Pallakonda',
+    template: '%s | Bhanu Pallakonda',
   },
-  description: 'Developer, writer, and creator.',
+  description: 'AI/ML Developer, Researcher, and creator.',
   openGraph: {
-    title: 'Lee Robinson',
-    description: 'Developer, writer, and creator.',
-    url: 'https://leerob.io',
-    siteName: 'Lee Robinson',
+    title: 'Bhanu Pallakonda',
+    description: 'AI/ML Developer, Researcher, and creator.',
+    url: 'https://bhanu.cyou',
+    siteName: 'Bhanu Pallakonda',
     images: [
       {
-        url: 'https://leerob.io/og.jpg',
+        url: 'https://bhanu.cyou/og.jpg',
         width: 1920,
         height: 1080,
       },
@@ -45,15 +45,15 @@ export const metadata: Metadata = {
     },
   },
   twitter: {
-    title: 'Lee Robinson',
+    title: 'Bhanu Pallakonda',
     card: 'summary_large_image',
   },
   icons: {
     shortcut: '/favicon.ico',
   },
   verification: {
-    google: 'eZSdmzAXlLkKhNJzfgwDqWORghxnJ8qR9_CHdAh5-xw',
-    yandex: '14d2e73487fa6c71',
+    google: 'tSYQhSxhXoJBWym6SWqB_qbuw5I3Na8aoirLwD9Yu5o',
+    yandex: '53025f361d50a41d',
   },
 };
 

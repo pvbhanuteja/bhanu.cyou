@@ -1,0 +1,11 @@
+---
+publishedAt: '2022-01-01'
+title: 'Image Colorization'
+description: 'Full stack app and real time API to check email.'
+github: 'https://github.com/pvbhanuteja/Image-colorization-UNET'
+tags: Unet, VGG feature loss, Lab space image, CNN regression, Pytorch
+featured: false
+description: 'Grey scale to RGB colorization using UNET architecture and VGG feature loss'
+---
+
+Image is converted to lab space(2 channel) to reduce the regression by a channel. Model is trained on UNET architecture. Tried with various loss functions (MSE, SSIM, TVLOSS, Pretrained VGG feature loss). Weighted loss gave better performance.

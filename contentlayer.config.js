@@ -8,7 +8,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 const computedFields = {
   slug: {
     type: 'string',
-    resolve: (doc) => doc._raw.flattenedPath,
+    resolve: (doc) => doc._raw.flattenedPath.replace('blogs/', '').replace('projects/', ''),
   },
   tweetIds: {
     type: 'array',
@@ -29,12 +29,12 @@ const computedFields = {
       dateModified: doc.publishedAt,
       description: doc.summary,
       image: doc.image
-        ? `https://leerob.io${doc.image}`
-        : `https://leerob.io/api/og?title=${doc.title}`,
-      url: `https://leerob.io/blog/${doc._raw.flattenedPath}`,
+        ? `https://bhanu.cyou${doc.image}`
+        : `https://bhanu.cyou/api/og?title=${doc.title}`,
+      url: `https://bhanu.cyou/blog/${doc._raw.flattenedPath}`,
       author: {
         '@type': 'Person',
-        name: 'Lee Robinson',
+        name: 'Bhanu Pallakonda',
       },
     }),
   },
@@ -42,7 +42,7 @@ const computedFields = {
 
 export const Blog = defineDocumentType(() => ({
   name: 'Blog',
-  filePathPattern: `**/*.mdx`,
+  filePathPattern: `blogs/*.mdx`,
   contentType: 'mdx',
   fields: {
     title: {
@@ -64,9 +64,51 @@ export const Blog = defineDocumentType(() => ({
   computedFields,
 }));
 
+export const Project = defineDocumentType(() => ({
+  name: 'Project',
+  filePathPattern: `projects/*.mdx`,
+  contentType: 'mdx',
+  fields: {
+    title: {
+      type: 'string',
+      required: true,
+    },
+    description: {
+      type: 'string',
+      required: true,
+    },
+    publishedAt: {
+      type: 'string',
+      required: true,
+    },
+    featured: {
+      type: 'boolean',
+      required: true,
+      default: false,
+    },
+    image: {
+      type: 'string',
+      required: false,
+    },
+    links: {
+      type: 'string',
+      required: false,
+    },
+    github: {
+        type: 'string',
+        required: false,
+    },
+    tags: {
+      type: 'string',
+    },
+  },
+  computedFields,
+}));
+
+
 export default makeSource({
   contentDirPath: 'content',
-  documentTypes: [Blog],
+  documentTypes: [Blog, Project],
   mdx: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [

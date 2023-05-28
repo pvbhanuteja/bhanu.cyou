@@ -1,0 +1,417 @@
+---
+title: 'Building and Visualizing Machine Language Translation from Scratch using TF2'
+publishedAt: '2020-08-05'
+summary: 'Learn, visualize and understand to build machine language translation, deep learning models, with TensorFlow (Using Seq2seq Models with Attention).'
+---
+
+
+[//]: # (### Deep Learning, Natural Language Processing, Machine Translation, TensorFlow, Seq2seq, Attention)
+
+### Learn and understand to build machine language translation, deep learning models, with TensorFlow (Using Seq2seq Models with Attention).
+
+This article requires some basic knowledge of Recurrent neural networks and GRU’s. I’ll give a brief intro to this concept in this article.
+
+In Deep Learning sequence to sequence, models have achieved a lot of success for the tasks of machine language translation. In this article, we will be building a Spanish to English translator.
+
+**Remember any bump in the animations refers to a mathematical operation being computed behind the scenes. **Also if you come across any french words in the animations consider them as Spanish words and continue(I tried to collect the best animations I could from the web ( ͡° ͜ʖ ͡°))
+
+![seq 2 seq visualization](https://cdn-images-1.medium.com/max/2000/1*AvuNyEYeqwXdAIG8OpL2Cw.gif)
+
+**A brief intro to RNN’s:**
+
+![](https://cdn-images-1.medium.com/max/2000/1*Y4WLkoW39iZa9XUWwRhuuw.gif)
+
+Each RNN unit takes in an input vector(**input #1**) and previous hidden state vector(**hidden state #0**) to compute current hidden state vector(**hidden state #1**) and the output vector(**output #1**) of that particular unit. we stack many of these units to make build our model(if we are specifically talking about the first unit, logically there would be no previous state so initialize that with zeros). In the coming animations, you would encounter encoder and decoder parts, each of those encoder-decoder parts is stacked with these RNN’s(GRU’s in our current example, they can be LSTM’s as well but GRU’s would suffice).
+
+**Let’s begin with seq2seq model:**
+
+This seq2seq model takes input as a sequence of items and outputs another sequence of items. For example, in this model, it would take in a Spanish sentence as input **“Me gusta el arte”** and outputs translated English sentence **“I like art”**.
+
+![](https://cdn-images-1.medium.com/max/2000/1*zVG-Fuh1QPhNAg9HtefLZA.gif)
+
+![A high-level seq2seq attention model](https://cdn-images-1.medium.com/max/2000/1*sxOWTZMK1p7IBAjVs--z4g.jpeg)
+
+The **attention** mechanism was born to help memorize long source sentences in neural machine translation (NMT). Rather than building a single context vector out of the encoder’s last hidden state, the secret sauce invented by **attention** is to create shortcuts between the context vector and the entire source input.
+
+![](https://cdn-images-1.medium.com/max/2000/1*U4D6in9uy1ENxdqdTLNQ-A.gif)
+
+The context is a vector (an array of numbers, basically) in the case of machine translation. The encoder and decoder tend to both be recurrent neural networks.
+
+![The **context** is a vector of floats. Later in this post, we will visualize vectors in color by assigning brighter colors to the cells with higher values.](https://cdn-images-1.medium.com/max/2000/1*foM2SXSyyby3f2m4YfTjoA.png)
+
+You can set the size of the context vector when you set up your model. It is the number of hidden units in the encoder RNN. These visualizations show a vector of size 4, but in real-world applications, the context vector would be of a size like 256, 512, or 1024. In this particular implementation, we will use **1024** which you will see as we move further down.
+
+**Okay, let’s get into implementation.**
+
+Complete implementation of google co-lab notebook is [**HERE](https://bit.ly/3ilL63V)**. I’ would recommend you go snippet-by-snippet where I’ll try to explain a few parts where I found it difficult while understanding the implementation.
+
+Imports first
+
+```python
+import tensorflow as tf
+
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from sklearn.model_selection import train_test_split
+
+import unicodedata
+import re
+import numpy as np
+import os
+import io
+import time
+```
+
+Now lets load in our train and test and pre-process it. I’ll be using data from this [link](http://storage.googleapis.com/download.tensorflow.org/data/spa-eng.zip). Data comprises of English sentence followed by a Spanish sentence which is separated by tab(\t).
+
+    > (An example line in the dataset)
+    >
+    > Go see Tom.      Ve a ver a Tom.
+```python
+# Download the file
+path_to_zip = tf.keras.utils.get_file(
+    'spa-eng.zip', origin='http://storage.googleapis.com/download.tensorflow.org/data/spa-eng.zip',
+    extract=True)
+
+path_to_file = os.path.dirname(path_to_zip)+"/spa-eng/spa.txt"
+
+# Converts the unicode file to ascii
+def unicode_to_ascii(s):
+  return ''.join(c for c in unicodedata.normalize('NFD', s)
+      if unicodedata.category(c) != 'Mn')
+
+
+def preprocess_sentence(w):
+  w = unicode_to_ascii(w.lower().strip())
+
+  # creating a space between a word and the punctuation following it
+  # eg: "he is a boy." => "he is a boy ."
+  # Reference:- https://stackoverflow.com/questions/3645931/python-padding-punctuation-with-white-spaces-keeping-punctuation
+  w = re.sub(r"([?.!,¿])", r" \1 ", w)
+  w = re.sub(r'[" "]+', " ", w)
+
+  # replacing everything with space except (a-z, A-Z, ".", "?", "!", ",")
+  w = re.sub(r"[^a-zA-Z?.!,¿]+", " ", w)
+
+  w = w.strip()
+
+  # adding a start and an end token to the sentence
+  # so that the model know when to start and stop predicting.
+  w = '<start> ' + w + ' <end>'
+  return w
+
+ def create_dataset(path, num_examples):
+  lines = io.open(path, encoding='UTF-8').read().strip().split('\n')
+
+  word_pairs = [[preprocess_sentence(w) for w in l.split('\t')]  for l in lines[:num_examples]]
+
+  return zip(*word_pairs)
+```
+
+Now we need to tokenize data. **Tokenization** is the process of **tokenizing** or splitting a string, text into a list of tokens. One can think of token as parts like a word is a token in a sentence, and a sentence is a token in a paragraph.
+
+```python
+
+def tokenize(lang):
+  lang_tokenizer = tf.keras.preprocessing.text.Tokenizer(
+      filters='')
+  lang_tokenizer.fit_on_texts(lang)
+
+  tensor = lang_tokenizer.texts_to_sequences(lang)
+
+  tensor = tf.keras.preprocessing.sequence.pad_sequences(tensor,
+                                                         padding='post')
+
+  return tensor, lang_tokenizer
+```
+
+    > The output of **tokenizer **for the sentence "I am worried." would be
+    > [1, 4, 568, 3, 2] 1 and 2 are mappings of start and end of the sentence. This is telling our model when to start or stop translation.
+
+Now that we tokenized the data let’s take first 30,000 samples let’s split the train and validation sets into 24,000 test data 6,000 val data totaling 30000 sentences. 30,000 split is for faster training you can change that number while implementing yourself in co-lab.
+
+```python
+def load_dataset(path, num_examples=None):
+  # creating cleaned input, output pairs
+  targ_lang, inp_lang = create_dataset(path, num_examples)
+
+  input_tensor, inp_lang_tokenizer = tokenize(inp_lang)
+  target_tensor, targ_lang_tokenizer = tokenize(targ_lang)
+
+  return input_tensor, target_tensor, inp_lang_tokenizer, targ_lang_tokenizer
+
+# Try experimenting with the size of that dataset
+num_examples = 30000
+input_tensor, target_tensor, inp_lang, targ_lang = load_dataset(path_to_file, num_examples)
+
+# Calculate max_length of the target tensors
+max_length_targ, max_length_inp = target_tensor.shape[1], input_tensor.shape[1]
+
+# Creating training and validation sets using an 80-20 split
+input_tensor_train, input_tensor_val, target_tensor_train, target_tensor_val = train_test_split(input_tensor, target_tensor, test_size=0.2)
+
+# Show length
+print(len(input_tensor_train), len(target_tensor_train), len(input_tensor_val), len(target_tensor_val))
+```
+
+Verify your tokenizer
+```python
+def convert(lang, tensor):
+  for t in tensor:
+    if t!=0:
+      print ("%d ----> %s" % (t, lang.index_word[t]))
+
+print ("Input Language; index to word mapping")
+convert(inp_lang, input_tensor_train[0])
+print ()
+print ("Target Language; index to word mapping")
+convert(targ_lang, target_tensor_train[0])
+```
+
+    > Input Language; index to word mapping
+    >
+    > 1 ----> `<start>`
+    >
+    > 24 ----> estoy
+    >
+    > 36 ----> muy
+    >
+    > 1667 ----> confundida
+    >
+    > 3 ----> .
+    >
+    > 2 ----> `<end>`
+    >
+
+    > Target Language; index to word mapping
+    >
+    > 1 ----> `<start>`
+    >
+    > 4 ----> i
+    >
+    > 18 ----> m
+    >
+    > 85 ----> so
+    >
+    > 561 ----> confused
+    >
+    > 3 ----> .
+    >
+    > 2 ----> `<end>`
+
+Create a tf.data This is a very useful step for shuffling your data or to perform any data-augmentation operation on your entire data without losing any consistency.
+
+```python
+BUFFER_SIZE = len(input_tensor_train)
+BATCH_SIZE = 64
+steps_per_epoch = len(input_tensor_train)//BATCH_SIZE
+embedding_dim = 256
+units = 1024
+vocab_inp_size = len(inp_lang.word_index)+1
+vocab_tar_size = len(targ_lang.word_index)+1
+
+dataset = tf.data.Dataset.from_tensor_slices((input_tensor_train, target_tensor_train)).shuffle(BUFFER_SIZE)
+dataset = dataset.batch(BATCH_SIZE, drop_remainder=True)
+
+example_input_batch, example_target_batch = next(iter(dataset))
+example_input_batch.shape, example_target_batch.shape
+```
+
+
+So here we are defining parameters what to use in our network. we will be using 256 embedding dimensions and out vocab size if 9414 so our embedding matrix shape will be 256*9414. This means for each of 9414 words in our vocab set we will issue a 256 length column vector, so for our network understands each word is a 256 length column vector. Later if you want a deeper understanding of Keras embedding layer tutorial check this very well explained [**youtube tutorial](https://www.youtube.com/watch?v=OuNH5kT-aD0)**.
+
+Looking back our high-level seq2seq attention model lets implement our encoder and decoder networks,(Remember as I said in **A brief into to RNN’s section **encoder and decoder networks are stacked [GRU units](https://d2l.ai/chapter_recurrent-modern/gru.html)).
+
+![](https://cdn-images-1.medium.com/max/2000/1*sxOWTZMK1p7IBAjVs--z4g.jpeg)
+
+![](https://cdn-images-1.medium.com/max/2000/1*gPHO3MURK-LsuYc08dJexQ.gif)
+
+**Keep an eye on time stamps on the above image for a better understanding while computing attention, context vectors, and decoder part.**
+
+**The below encoder starts from time stamp 1 and ends and time stamp 3**
+
+We will send in 64 batch size input to our encode network (64,16) here 16 is the shape of our tokenized padded sequence sentence. In our all of 30,000 (26,000 if we consider only train data) sample there exists a sentence with a maximum of 16 words in that sentence that is where we got 16 from. if the sentence contains just 2 words we issue tokens for those 2 words and post-pad remaining 14 slots with zeros.
+
+This (64,16) is passed through the embedding layer(9414,256) and then passed through GRU with 1024 Units(Remember? while explaining context visual I said we would use 1024). 1024 is the shape of the hidden state as well as the output of the GRU’s.
+
+    > Encoder output shape: (batch size, sequence length, units) (64, 16, 1024)
+    >
+    > Encoder Hidden state shape: (batch size, units) (64, 1024)
+
+Ok! look at the encoder snippet to get a better feel of the explanation. We first initialize the hidden state of the first encoder GRU with zeros.
+```python
+class Encoder(tf.keras.Model):
+  def __init__(self, vocab_size, embedding_dim, enc_units, batch_sz):
+    super(Encoder, self).__init__()
+    self.batch_sz = batch_sz
+    self.enc_units = enc_units
+    self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+    self.gru = tf.keras.layers.GRU(self.enc_units,
+                                   return_sequences=True,
+                                   return_state=True,
+                                   recurrent_initializer='glorot_uniform')
+
+  def call(self, x, hidden):
+    x = self.embedding(x)
+    output, state = self.gru(x, initial_state = hidden)
+    return output, state
+
+  def initialize_hidden_state(self):
+    return tf.zeros((self.batch_sz, self.enc_units))
+
+
+encoder = Encoder(vocab_inp_size, embedding_dim, units, BATCH_SIZE)
+
+# sample input
+sample_hidden = encoder.initialize_hidden_state()
+sample_output, sample_hidden = encoder(example_input_batch, sample_hidden)
+print ('Encoder output shape: (batch size, sequence length, units) {}'.format(sample_output.shape))
+print ('Encoder Hidden state shape: (batch size, units) {}'.format(sample_hidden.shape))
+```
+
+**With that, we built the encoder now comes the main part of attention and context vectors and computing decoder.**
+
+First, the encoder passes a lot more data to the decoder. Instead of passing the last hidden state of the encoding stage, the encoder passes *all* the hidden states to the decoder:
+
+![](https://cdn-images-1.medium.com/max/2000/1*f_PATlwMJhLnSuYJ7FnD1Q.gif)
+
+Second, an attention decoder does an extra step before producing its output. To focus on the parts of the input that are relevant to this decoding time step, the decoder does the following:
+
+ 1. Look at the set of encoder hidden states it received — each encoder hidden states is most associated with a certain word in the input sentence
+
+ 2. Give each hidden states a score
+
+ 3. Multiply each hidden states by its softmaxed score, thus amplifying hidden states with high scores, and drowning out hidden states with low scores.
+
+**Computing hidden state scores:**
+
+The following part is directly taken from the co-lab notebook of TensorFlow examples because its the best shot way of explaining.
+
+This tutorial uses [Bahdanau's attention](https://arxiv.org/pdf/1409.0473.pdf) for the encoder. Let’s decide on notation before writing the simplified form:
+
+* FC = Fully connected (dense) layer
+
+* EO = Encoder output
+
+* H = hidden state
+
+* X = input to the decoder
+
+And the pseudo-code:
+
+* score = FC(tanh(FC(EO) + FC(H)))
+
+* attention weights = softmax(score, axis = 1). Softmax by default is applied on the last axis but here we want to apply it on the *1st axis* since the shape of the score is *(batch_size, max_length, hidden_size)*. Max_length is the length of our input. Since we are trying to assign a weight to each input, softmax should be applied on that axis.
+
+* context vector = sum(attention weights * EO, axis = 1). Same reason as above for choosing axis as 1.
+
+* embedding output = The input to the decoder X is passed through an embedding layer.
+
+* merged vector = concat(embedding output, context vector)
+
+* This merged vector is then given to the GRU
+
+The shapes of all the vectors at each step have been specified in the comments in the code.
+
+![](https://cdn-images-1.medium.com/max/4096/1*ZA-bVx0O_p1qUFL3TJf-XQ.jpeg)
+
+![](https://cdn-images-1.medium.com/max/4096/1*4Y-0FpHu2flA19CHc1Noyw.jpeg)
+
+Look at the above equations and all hs_dash corresponds to the hidden states of the encoder network and ht corresponds to the hidden states of the decoder network.[Passage taken from [*https://jalammar.github.io/illustrated-transformer/](https://jalammar.github.io/illustrated-transformer/) ]*
+
+This scoring exercise is done at each time step on the decoder side.
+
+Let us now bring the whole thing together in the following visualization and look at how the attention process works:
+
+ 1. The attention decoder RNN takes in the embedding of the `<END>` token, and an initial decoder hidden state.
+
+ 2. The RNN processes its inputs, producing an output and a new hidden state vector (h4). The output is discarded.
+
+ 3. Attention Step: We use the encoder hidden states and the h4 vector to calculate a context vector (C4) for this time step.
+
+ 4. We concatenate h4 and C4 into one vector.
+
+ 5. We pass this vector through a feedforward neural network (one trained jointly with the model).
+
+ 6. The output of the feedforward neural networks indicates the output word of this time step.
+
+ 7. Repeat for the next time steps
+
+![Computing context vector after scoring the attention values](https://cdn-images-1.medium.com/max/2000/1*lHiKVOxaMc0lpWmFpzJLlw.gif)
+
+![The whole picture happening on the decoder side](https://cdn-images-1.medium.com/max/2000/1*Bw9IhaNZFuozyjOUILaqEg.gif)
+
+Decoder code:
+```python
+class Decoder(tf.keras.Model):
+  def __init__(self, vocab_size, embedding_dim, dec_units, batch_sz):
+    super(Decoder, self).__init__()
+    self.batch_sz = batch_sz
+    self.dec_units = dec_units
+    self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
+    self.gru = tf.keras.layers.GRU(self.dec_units,
+                                   return_sequences=True,
+                                   return_state=True,
+                                   recurrent_initializer='glorot_uniform')
+    self.fc = tf.keras.layers.Dense(vocab_size)
+
+    # used for attention
+    self.attention = BahdanauAttention(self.dec_units)
+
+  def call(self, x, hidden, enc_output):
+    # enc_output shape == (batch_size, max_length, hidden_size)
+    context_vector, attention_weights = self.attention(hidden, enc_output)
+
+    # x shape after passing through embedding == (batch_size, 1, embedding_dim)
+    x = self.embedding(x)
+
+    # x shape after concatenation == (batch_size, 1, embedding_dim + hidden_size)
+    x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)
+
+    # passing the concatenated vector to the GRU
+    output, state = self.gru(x)
+
+    # output shape == (batch_size * 1, hidden_size)
+    output = tf.reshape(output, (-1, output.shape[2]))
+
+    # output shape == (batch_size, vocab)
+    x = self.fc(output)
+
+    return x, state, attention_weights
+
+decoder = Decoder(vocab_tar_size, embedding_dim, units, BATCH_SIZE)
+
+sample_decoder_output, _, _ = decoder(tf.random.uniform((BATCH_SIZE, 1)),
+                                      sample_hidden, sample_output)
+
+print ('Decoder output shape: (batch_size, vocab size) {}'.format(sample_decoder_output.shape))
+```
+
+Finally, we optimize and train the model for complete end-to-end machine translation.
+
+![](https://cdn-images-1.medium.com/max/2000/1*f_PATlwMJhLnSuYJ7FnD1Q.gif)
+
+Please find a co-lab notebook of complete implementation of the explained model taken from the TensorFlow official tutorials try and implement it yourself.
+
+LINK: [**CLICK HERE](https://colab.research.google.com/drive/1GhWYcxpoK97hyXGVtz6Bk7Iwl1WRe3gj)**
+
+Note: This is my first article on medium any suggestions are welcomed :).
+
+Feel free to comment on your doubts.
+
+[**Connect on LinkedIn](https://www.linkedin.com/in/pvbhanuteja/)**
+
+Image source: *Alammar, Jay (2018). The Illustrated Transformer [Blog post]. Retrieved from [https://jalammar.github.io/illustrated-transformer/](https://jalammar.github.io/illustrated-transformer/)*
+
+References :
+- [**Google Colaboratory**
+*Edit description*colab.research.google.com](https://colab.research.google.com/github/tensorflow/docs/blob/master/site/en/tutorials/text/nmt_with_attention.ipynb)
+- [**Effective Approaches to Attention-based Neural Machine Translation**
+*An attentional mechanism has lately been used to improve neural machine translation (NMT) by selectively focusing on…*arxiv.org](https://arxiv.org/abs/1508.04025v5)
+- [**Visualizing A Neural Machine Translation Model (Mechanics of Seq2seq Models With Attention)**
+*Translations: Chinese (Simplified), Japanese, Korean, Russian Watch: MIT’s Deep Learning State of the Art lecture…*jalammar.github.io](http://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/)
+- [**Neural Machine Translation by Jointly Learning to Align and Translate**
+*Neural Machine Translation by Jointly Learning to Align and Translate - Dzmitry Bahdanau, Kyunghyun Cho, Yoshua…*arxiv.org](https://arxiv.org/abs/1409.0473v7)
+- [**Attention Is All You Need**
+*arxiv.org](https://arxiv.org/abs/1706.03762v5)
+

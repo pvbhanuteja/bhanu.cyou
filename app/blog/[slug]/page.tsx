@@ -28,8 +28,8 @@ export async function generateMetadata({
     slug,
   } = post;
   const ogImage = image
-    ? `https://leerob.io${image}`
-    : `https://leerob.io/api/og?title=${title}`;
+    ? `https://bhanu.cyou${image}`
+    : `https://bhanu.cyou/api/og?title=${title}`;
 
   return {
     title,
@@ -39,7 +39,7 @@ export async function generateMetadata({
       description,
       type: 'article',
       publishedTime,
-      url: `https://leerob.io/blog/${slug}`,
+      url: `https://bhanu.cyou/blog/${slug}`,
       images: [
         {
           url: ogImage,
@@ -57,7 +57,8 @@ export async function generateMetadata({
 
 export default async function Blog({ params }) {
   const post = allBlogs.find((post) => post.slug === params.slug);
-
+  console.log(allBlogs)
+  console.log(params)
   if (!post) {
     notFound();
   }

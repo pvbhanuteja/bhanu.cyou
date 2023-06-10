@@ -21,11 +21,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Bhanu Pallakonda',
     description: 'AI/ML Developer, Researcher, and creator.',
-    url: 'https://bhanu.cyou',
+    url: 'https://www.bhanu.cyou',
     siteName: 'Bhanu Pallakonda',
     images: [
       {
-        url: 'https://bhanu.cyou/og.jpg',
+        url: 'https://www.bhanu.cyou/og.jpg',
         width: 1920,
         height: 1080,
       },

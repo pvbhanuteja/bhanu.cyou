@@ -25,8 +25,8 @@ export async function generateMetadata({
     slug,
   } = project;
   const ogImage = image
-    ? `https://bhanu.cyou${image}`
-    : `https://bhanu.cyou/api/og?title=${title}`;
+    ? `https://www.bhanu.cyou${image}`
+    : `https://www.bhanu.cyou/api/og?title=${title}`;
 
   return {
     title,
@@ -36,7 +36,7 @@ export async function generateMetadata({
       description,
       type: 'article',
       publishedTime,
-      url: `https://bhanu.cyou/projects/${slug}`,
+      url: `https://www.bhanu.cyou/projects/${slug}`,
       images: [
         {
           url: ogImage,

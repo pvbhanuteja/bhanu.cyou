@@ -28,8 +28,8 @@ export async function generateMetadata({
     slug,
   } = post;
   const ogImage = image
-    ? `https://bhanu.cyou${image}`
-    : `https://bhanu.cyou/api/og?title=${title}`;
+    ? `https://www.bhanu.cyou${image}`
+    : `https://www.bhanu.cyou/api/og?title=${title}`;
 
   return {
     title,
@@ -39,7 +39,7 @@ export async function generateMetadata({
       description,
       type: 'article',
       publishedTime,
-      url: `https://bhanu.cyou/blog/${slug}`,
+      url: `https://www.bhanu.cyou/blog/${slug}`,
       images: [
         {
           url: ogImage,

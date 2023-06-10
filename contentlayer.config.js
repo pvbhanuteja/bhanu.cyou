@@ -29,9 +29,9 @@ const computedFields = {
       dateModified: doc.publishedAt,
       description: doc.summary,
       image: doc.image
-        ? `https://bhanu.cyou${doc.image}`
-        : `https://bhanu.cyou/api/og?title=${doc.title}`,
-      url: `https://bhanu.cyou/blog/${doc._raw.flattenedPath}`,
+        ? `https://www.bhanu.cyou${doc.image}`
+        : `https://www.bhanu.cyou/api/og?title=${doc.title}`,
+      url: `https://www.bhanu.cyou/blog/${doc._raw.flattenedPath}`,
       author: {
         '@type': 'Person',
         name: 'Bhanu Pallakonda',

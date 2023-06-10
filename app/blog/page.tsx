@@ -5,7 +5,7 @@ import ViewCounter from './view-counter';
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: 'Read my thoughts on software development, design, and more.',
+  description: 'Read my thoughts on AI/ML, design, and more.',
 };
 
 export default async function BlogPage() {

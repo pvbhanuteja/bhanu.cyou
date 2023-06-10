@@ -5,7 +5,7 @@ export default function robots() {
         userAgent: '*',
       },
     ],
-    sitemap: 'https://bhanu.cyou/sitemap.xml',
-    host: 'https://bhanu.cyou',
+    sitemap: 'https://www.bhanu.cyou/sitemap.xml',
+    host: 'https://www.bhanu.cyou',
   };
 }

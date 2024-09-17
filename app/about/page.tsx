@@ -1,57 +1,36 @@
 //import arrow icon
 import { ArrowIcon } from 'components/icons';
 export default function AboutPage() {
-    // Mock skills list. Please replace this with your own.
-    const skills = [
-        'Python',
-        'Pytorch',
-        'lightning',
-        'Git',
-        'Docker',
-        'Airflow',
-        'Huggingface',
-        'Vscode',
-    ];
-
     return (
-        <section>
-            <h1 className="font-bold text-3xl mb-8 font-serif">About Me</h1>
-
-            <div className="space-y-4">
-                <p className="text-neutral-800 dark:text-neutral-200">
-                    Hello! I'm Bhanu from Hyderabad, India, currently living in Texas. I completed my
-                    bachelor's degree at the Indian Institute of Technology Tirupati, worked for 2 years
-                    as a Machine Learning Engineer, and recently finished my master's degree at Texas A&M
-                    University, College Station. My focus has been on AI, particularly
-                    in computer vision and NLP (text and speech).
-                </p>
-                <p className="text-neutral-800 dark:text-neutral-200">
-                    As an Applied AI/ML Scientist, I have a wealth of experience with classification/regression models,
-                    dimensionality reduction, feature selection, clustering, and data visualization.
-                    My knowledge encompasses the state-of-the-art architectures, with a particular focus on transformer models
-                    used in NLP and speech tasks. Beyond these areas, I have also spent considerable time in model tuning and optimization,
-                    thereby sharpening my practical application of machine learning principles.
-                    Running <code className="px-1 py-px bg-gray-200 rounded dark:bg-gray-800">nvidia-smi</code> is my
-                    favorite pastime while coding.
-                </p>
-                <p className="text-neutral-800 dark:text-neutral-200">
-                    Outside of work, I enjoy traveling, watching movies, scrolling through memes, and
-                    passionately following cricket.
-                </p>
-
-                <p className="text-neutral-800 dark:text-neutral-200">
-                    I use the following on a daily basis for work and research:
-                </p>
-                <ul className="grid gap-2 p-0 m-0 overflow-hidden list-none grid-cols-2 mt-5">
-                    {skills && skills.map((skill, i) => (
-                        <li key={i} className="relative mb-2 pl-5 font-mono text-xs">
-                            {/*<ArrowIcon />*/}
-                            {skill}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-        </section>
+      <section>
+        <h1 className="font-bold text-3xl font-serif mb-8">About Me</h1>
+        <div className="prose prose-neutral dark:prose-invert text-neutral-800 dark:text-neutral-200">
+          <p>
+            Greetings, fellow internet explorer! I'm Bhanu, a Lead AI Engineer at Armada AI, where I spend my days 
+            convincing AI to be more intelligent and less artificial. With a Master's in Computer Science from Texas A&M 
+            and a Bachelor's in Electrical Engineering from IIT Tirupati, I've got just enough education to be dangerous 
+            (in a good way, I promise).
+          </p>
+          <h2>Professional Journey</h2>
+          <p>
+            Currently, I'm leading the charge in Generative AI and LLMs at Armada AI. Think of me as a linguistic 
+            ringmaster in a circus of chatbots, RAG systems, and even conversational drone controllers. Before this, 
+            I was a Machine Learning Engineer at Fincare Small Finance Bank, where I taught computers to understand 
+            humans (a task that even humans struggle with sometimes).
+          </p>
+          <h2>Achievements</h2>
+          <p>
+            I'm the proud inventor on two US Patents for Edge Computing Units. It's like I've got a patent on making 
+            computers work harder so humans can work smarter. I've also contributed to open-source projects like Repaper 
+            and created Mailcheck.ing, because apparently, the world needed yet another way to validate emails.
+          </p>
+          <h2>Skills & Specializations</h2>
+          <p>
+            My toolkit includes Python (with all the AI goodies like PyTorch and TensorFlow), JavaScript, React, SQL, 
+            and Docker. I specialize in Deep Learning, Pattern Recognition, Computer Vision, and a bunch of other 
+            impressive-sounding fields that basically mean I teach computers to see and think.
+          </p>
+        </div>
+      </section>
     );
-}
+  }

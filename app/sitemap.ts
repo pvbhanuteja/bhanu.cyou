@@ -11,7 +11,7 @@ export default async function sitemap() {
     lastModified: post.publishedAt,
   }));
 
-  const routes = ['', '/about', '/blog', '/guestbook', '/uses','/projects'].map(
+  const routes = ['', '/about', '/patents','/experience', '/blog', '/guestbook', '/uses','/projects'].map(
     (route) => ({
       url: `https://www.bhanu.cyou${route}`,
       lastModified: new Date().toISOString().split('T')[0],

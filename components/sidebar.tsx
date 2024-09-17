@@ -12,6 +12,12 @@ const navItems = {
   '/about': {
     name: 'about',
   },
+  '/patents': {
+    name: 'patents',
+  },
+  '/experience': {
+    name: 'experience',
+  },
   '/projects': {
     name: 'projects',
   },

@@ -5,7 +5,10 @@ export const avatar = me;
 export const about = () => {
   return (
     <>
-        Hi, I'm Bhanu. I'm an applied machine learning engineer with a master's degree in Computer Science from Texas A&M University.
+                Hey there! 👋 I'm Bhanu, a Lead AI Engineer with a knack for making machines talk (and occasionally sass back). 
+        When I'm not wrangling Large Language Models or teaching drones to fly themselves, you can find me inventing new ways to 
+        turn coffee into code. My superpower? Turning complex AI concepts into solutions so user-friendly, even your grandma could use them 
+        (no offense to tech-savvy grandmas out there).
     </>
   );
 };

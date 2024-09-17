@@ -99,6 +99,13 @@ export default async function HomePage() {
           </a>
         </li>
       </ul>
+      <h2 className="text-2xl font-serif mt-8 mb-4">Quick Facts</h2>
+      <ul className="font-sm list-disc list-inside space-y-2 text-neutral-800 dark:text-neutral-200">
+        <li>- Master of Science in Computer Science from Texas A&M University</li>
+        <li>- Bachelor of Technology in Electrical Engineering from IIT Tirupati</li>
+        <li>- Two US Patents under my belt (because one just wasn't enough)</li>
+        <li>- Creator of Mailcheck.ing (because the world needed more .ing domains)</li>
+      </ul>
     </section>
   );
 }
